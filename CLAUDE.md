@@ -1,4 +1,4 @@
-# Claude Code Rules
+﻿# Claude Code Rules
 
 This file is generated during init for the selected agent.
 
@@ -208,3 +208,109 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+---
+
+## Project Requirements
+
+**Objective:** Transform the console app into a modern multi-user web application with persistent storage using the Agentic Dev Stack workflow: Write spec → Generate plan → Break into tasks → Implement via Claude Code. No manual coding allowed.
+
+### Basic Level Features
+- Implement all 5 Basic Level features as a web application
+- Create RESTful API endpoints
+- Build responsive frontend interface
+- Store data in Neon Serverless PostgreSQL database
+- Authentication: user signup/signin using Better Auth with JWT tokens
+
+## Technology Stack
+
+| Layer          | Technology                    |
+|----------------|-------------------------------|
+| Frontend       | Next.js 16+ (App Router)      |
+| Backend        | Python FastAPI                |
+| ORM            | SQLModel                     |
+| Database       | Neon Serverless PostgreSQL    |
+| Spec-Driven    | Claude Code + Spec-Kit Plus  |
+| Authentication | Better Auth (JWT tokens)     |
+
+## Agent Delegation Rules
+
+You MUST delegate tasks to the appropriate specialized agent based on the domain. Do NOT implement these domains inline — always use the Task tool to spawn the correct agent.
+
+### 1. Auth Agent (`auth-security`)
+**Trigger:** Any task involving authentication, authorization, user signup, signin, password hashing, JWT token generation/verification, Better Auth integration, or user input validation for security.
+**Delegate to:** `auth-security` subagent via the Task tool.
+**Scope:**
+- Better Auth configuration and integration
+- JWT token generation, verification, and management
+- User signup and signin flows
+- Password hashing and secure storage
+- Session management
+- Auth middleware and route protection
+- Security-related input validation
+
+### 2. Frontend Agent (`nextjs-frontend-builder`)
+**Trigger:** Any task involving building, creating, or optimizing UI components, pages, layouts, or responsive design in the Next.js App Router project.
+**Delegate to:** `nextjs-frontend-builder` subagent via the Task tool.
+**Scope:**
+- Next.js 16+ App Router pages and layouts
+- Responsive UI components (mobile, tablet, desktop)
+- Client and server components
+- Navigation and routing
+- Form components and client-side validation
+- Styling and theming
+- Frontend performance optimization
+- Integration with backend API endpoints
+
+### 3. DB Agent (`neon-postgres-manager`)
+**Trigger:** Any task involving database schema design, table creation, migrations, query optimization, indexing, or Neon PostgreSQL operations.
+**Delegate to:** `neon-postgres-manager` subagent via the Task tool.
+**Scope:**
+- Neon Serverless PostgreSQL database setup
+- Table creation and schema design
+- SQLModel model definitions
+- Database migrations
+- Query optimization and indexing
+- Connection pooling and Neon-specific configuration
+- Data seeding and backfill operations
+
+### 4. Backend Agent (`fastapi-backend`)
+**Trigger:** Any task involving FastAPI route development, request/response validation, API endpoint creation, database interactions from the API layer, or backend architecture.
+**Delegate to:** `fastapi-backend` subagent via the Task tool.
+**Scope:**
+- FastAPI application setup and configuration
+- RESTful API endpoint creation (CRUD operations)
+- Request/response models and validation (Pydantic/SQLModel)
+- Database session management and repository patterns
+- API middleware (CORS, error handling)
+- Integration with Better Auth JWT verification
+- Backend business logic
+- API documentation (OpenAPI/Swagger)
+
+### Agent Collaboration Pattern
+For features that span multiple domains, delegate to agents in this order:
+1. **DB Agent** — Design and create the database schema/tables first
+2. **Backend Agent** — Build the API endpoints that interact with the database
+3. **Auth Agent** — Implement authentication and protect routes
+4. **Frontend Agent** — Build the UI that consumes the API
+
+When a task clearly belongs to one agent's domain, delegate immediately. When a task spans multiple domains, break it into sub-tasks and delegate each to the appropriate agent sequentially.
+
+### Agent Delegation Examples
+```
+# Authentication work → Auth Agent
+Task: "Implement user signup with email and password"
+→ Delegate to: auth-security
+
+# UI work → Frontend Agent
+Task: "Create a dashboard page with sidebar navigation"
+→ Delegate to: nextjs-frontend-builder
+
+# Database work → DB Agent
+Task: "Create users and products tables with proper indexes"
+→ Delegate to: neon-postgres-manager
+
+# API work → Backend Agent
+Task: "Create CRUD endpoints for product management"
+→ Delegate to: fastapi-backend
+```

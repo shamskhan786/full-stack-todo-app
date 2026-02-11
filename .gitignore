@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# Node.js
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+*.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Alembic
+alembic/versions/__pycache__/
