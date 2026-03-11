@@ -3,6 +3,8 @@ import { jwt } from "better-auth/plugins";
 import { Pool } from "pg";
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""].filter(Boolean),
   database: new Pool({
     connectionString: process.env.DATABASE_URL,
   }),

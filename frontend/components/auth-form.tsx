@@ -76,7 +76,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           setError(signInError.message || "Sign in failed");
           return;
         }
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch {
       setError("An unexpected error occurred");
