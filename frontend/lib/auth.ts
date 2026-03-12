@@ -1,14 +1,18 @@
 import { betterAuth } from "better-auth";
 import { jwt } from "better-auth/plugins";
-import { Pool, neonConfig } from "@neondatabase/serverless";
+import { Pool } from "pg";
 
-// Node.js 22+ has native WebSocket — use it for Neon serverless Pool
-neonConfig.webSocketConstructor = globalThis.WebSocket;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  idleTimeoutMillis: 0,
+  connectionTimeoutMillis: 10000,
+});
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""].filter(Boolean),
-  database: new Pool({ connectionString: process.env.DATABASE_URL }),
+  database: pool,
   emailAndPassword: {
     enabled: true,
   },
