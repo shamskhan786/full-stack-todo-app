@@ -13,7 +13,7 @@ export default function Home() {
     if (session) {
       router.replace("/dashboard");
     } else {
-      router.replace("/signin");
+      router.replace("/vercel ");
     }
   }, [session, isPending, router]);
 
