@@ -1,0 +1,143 @@
+{
+  "tools": [
+    {
+      "name": "add_task",
+      "description": "Create a new task for the authenticated user",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid", "description": "Authenticated user ID from JWT" },
+          "title": { "type": "string", "maxLength": 255, "description": "Task title (required)" },
+          "description": { "type": "string", "description": "Optional task description" }
+        },
+        "required": ["user_id", "title"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "task": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "user_id": { "type": "string", "format": "uuid" },
+              "title": { "type": "string" },
+              "description": { "type": "string", "nullable": true },
+              "status": { "type": "string", "enum": ["pending", "completed"] },
+              "created_at": { "type": "string", "format": "date-time" },
+              "updated_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "list_tasks",
+      "description": "List all tasks for the authenticated user",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid", "description": "Authenticated user ID from JWT" },
+          "status": { "type": "string", "enum": ["pending", "completed", "all"], "description": "Filter by status (default: all)" }
+        },
+        "required": ["user_id"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "title": { "type": "string" },
+                "description": { "type": "string", "nullable": true },
+                "status": { "type": "string" },
+                "created_at": { "type": "string", "format": "date-time" }
+              }
+            }
+          },
+          "count": { "type": "integer" }
+        }
+      }
+    },
+    {
+      "name": "complete_task",
+      "description": "Mark a task as completed for the authenticated user",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid", "description": "Authenticated user ID from JWT" },
+          "task_id": { "type": "string", "format": "uuid", "description": "ID of the task to complete" }
+        },
+        "required": ["user_id", "task_id"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "task": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "title": { "type": "string" },
+              "status": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "delete_task",
+      "description": "Delete a task belonging to the authenticated user",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid", "description": "Authenticated user ID from JWT" },
+          "task_id": { "type": "string", "format": "uuid", "description": "ID of the task to delete" }
+        },
+        "required": ["user_id", "task_id"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "update_task",
+      "description": "Update a task's details for the authenticated user",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid", "description": "Authenticated user ID from JWT" },
+          "task_id": { "type": "string", "format": "uuid", "description": "ID of the task to update" },
+          "title": { "type": "string", "maxLength": 255, "description": "New title (optional)" },
+          "description": { "type": "string", "description": "New description (optional)" },
+          "status": { "type": "string", "enum": ["pending", "completed"], "description": "New status (optional)" }
+        },
+        "required": ["user_id", "task_id"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "task": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "title": { "type": "string" },
+              "description": { "type": "string", "nullable": true },
+              "status": { "type": "string" },
+              "updated_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 
 class Task(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(index=True, nullable=False)
+    user_id: str = Field(index=True, nullable=False, max_length=36)
     title: str = Field(max_length=500, nullable=False)
     description: str | None = Field(default=None)
     is_completed: bool = Field(default=False)

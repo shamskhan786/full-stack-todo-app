@@ -16,7 +16,7 @@ class TaskUpdate(BaseModel):
 
 class TaskRead(BaseModel):
     id: UUID
-    user_id: UUID
+    user_id: str
     title: str
     description: str | None
     is_completed: bool

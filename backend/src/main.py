@@ -1,4 +1,5 @@
 import logging
+import logging.config
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -11,9 +12,41 @@ from sqlmodel import SQLModel, text
 from .api.router import api_router
 from .config import settings
 from .database import engine
+from .mcp import mcp
+from .mcp import tools  # noqa: F401 — import to register MCP tools
 from .schemas.responses import ErrorDetail, ErrorResponse
 
+# Configure structured logging for traceability
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "structured": {
+            "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "structured",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        "backend": {"level": "INFO", "handlers": ["console"], "propagate": False},
+        "backend.mcp": {"level": "INFO", "handlers": ["console"], "propagate": False},
+        "backend.agents": {"level": "INFO", "handlers": ["console"], "propagate": False},
+        "backend.api": {"level": "INFO", "handlers": ["console"], "propagate": False},
+    },
+    "root": {"level": "INFO", "handlers": ["console"]},
+}
+logging.config.dictConfig(LOGGING_CONFIG)
+
 logger = logging.getLogger(__name__)
+
+# Create MCP HTTP app once (shared between lifespan and mount)
+mcp_app = mcp.http_app(path="/")
 
 
 @asynccontextmanager
@@ -35,8 +68,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception:
         logger.exception("Database connectivity check failed")
 
-    logger.info("Backend startup complete")
-    yield
+    # Initialize FastMCP's streamable HTTP session manager (required for task group)
+    async with mcp_app.lifespan(mcp_app):
+        logger.info("MCP server initialized")
+        logger.info("Backend startup complete")
+        yield
 
 
 app = FastAPI(
@@ -48,9 +84,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],
+    allow_origins=[settings.FRONTEND_URL, "*"],  # Allow OpenAI infrastructure to reach /mcp
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -101,3 +137,6 @@ async def generic_exception_handler(
 
 
 app.include_router(api_router)
+
+# Mount MCP server at /mcp endpoint
+app.mount("/mcp", mcp_app)

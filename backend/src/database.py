@@ -4,6 +4,7 @@ from sqlalchemy.pool import NullPool
 from sqlmodel import Session, create_engine
 
 from .config import settings
+from .models.conversation import ConversationMessage, ConversationSession  # noqa: F401 — imported for SQLModel.metadata.create_all discovery
 from .models.task import Task  # noqa: F401 — imported for SQLModel.metadata.create_all discovery
 
 engine = create_engine(

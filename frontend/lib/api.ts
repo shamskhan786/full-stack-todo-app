@@ -150,3 +150,65 @@ export async function completeTask(
     method: "PATCH",
   });
 }
+
+/**
+ * Creates a new ChatKit session for the authenticated user.
+ * Returns client_secret for OpenAI ChatKit and optional session_id.
+ */
+export async function createChatSession(): Promise<{
+  client_secret: string;
+  session_id: string | null;
+}> {
+  const token = await getToken();
+  const res = await fetch("/api/chatkit/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (res.status === 401) {
+    if (typeof window !== "undefined") window.location.href = "/signin";
+    throw new ApiError("Session expired", "UNAUTHORIZED");
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(body.error || "Failed to create session", "SESSION_ERROR");
+  }
+
+  return res.json();
+}
+
+/**
+ * Retrieves chat history for the authenticated user.
+ * Returns an array of messages with id, role, content, and timestamp.
+ */
+export async function getChatHistory(limit: number = 50): Promise<{
+  messages: Array<{
+    id: string;
+    role: string;
+    content: string;
+    created_at: string;
+  }>;
+}> {
+  const token = await getToken();
+  const res = await fetch(`/api/chatkit/history?limit=${limit}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (res.status === 401) {
+    if (typeof window !== "undefined") window.location.href = "/signin";
+    throw new ApiError("Session expired", "UNAUTHORIZED");
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(body.error || "Failed to load history", "HISTORY_ERROR");
+  }
+
+  return res.json();
+}

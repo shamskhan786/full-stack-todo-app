@@ -12,8 +12,8 @@ from ..schemas.task import TaskCreate, TaskRead, TaskUpdate
 router = APIRouter()
 
 
-def _verify_user_id(user_id: UUID, token_payload: dict) -> None:
-    if str(user_id) != token_payload.get("sub"):
+def _verify_user_id(user_id: str, token_payload: dict) -> None:
+    if user_id != token_payload.get("sub"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User ID mismatch",
@@ -21,7 +21,7 @@ def _verify_user_id(user_id: UUID, token_payload: dict) -> None:
 
 
 def _get_task_or_404(
-    session: Session, task_id: UUID, user_id: UUID
+    session: Session, task_id: UUID, user_id: str
 ) -> Task:
     statement = select(Task).where(
         Task.id == task_id, Task.user_id == user_id
@@ -44,7 +44,7 @@ def _get_task_or_404(
     status_code=status.HTTP_201_CREATED,
 )
 def create_task(
-    user_id: UUID,
+    user_id: str,
     task_data: TaskCreate,
     session: Session = Depends(get_session),
     token_payload: dict = Depends(verify_jwt),
@@ -69,7 +69,7 @@ def create_task(
     response_model=SuccessResponse[list[TaskRead]],
 )
 def list_tasks(
-    user_id: UUID,
+    user_id: str,
     session: Session = Depends(get_session),
     token_payload: dict = Depends(verify_jwt),
 ):
@@ -89,7 +89,7 @@ def list_tasks(
     response_model=SuccessResponse[TaskRead],
 )
 def get_task(
-    user_id: UUID,
+    user_id: str,
     task_id: UUID,
     session: Session = Depends(get_session),
     token_payload: dict = Depends(verify_jwt),
@@ -104,7 +104,7 @@ def get_task(
     response_model=SuccessResponse[TaskRead],
 )
 def update_task(
-    user_id: UUID,
+    user_id: str,
     task_id: UUID,
     task_data: TaskUpdate,
     session: Session = Depends(get_session),
@@ -129,7 +129,7 @@ def update_task(
     response_model=DeleteResponse,
 )
 def delete_task(
-    user_id: UUID,
+    user_id: str,
     task_id: UUID,
     session: Session = Depends(get_session),
     token_payload: dict = Depends(verify_jwt),
@@ -149,7 +149,7 @@ def delete_task(
     response_model=SuccessResponse[TaskRead],
 )
 def complete_task(
-    user_id: UUID,
+    user_id: str,
     task_id: UUID,
     session: Session = Depends(get_session),
     token_payload: dict = Depends(verify_jwt),
